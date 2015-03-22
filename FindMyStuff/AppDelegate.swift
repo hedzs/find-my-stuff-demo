@@ -7,14 +7,37 @@
 //
 
 import UIKit
+import CoreLocation
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
+    let isDeviceCapableOfMonitoring = CLLocationManager.isRangingAvailable()
+    let isAppAuthorizedToLocate = CLLocationManager.authorizationStatus()
+    
+    
+    func application(application: UIApplication, willFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]?) -> Bool {
+        /* TODO: check backgroundRefreshStatus ha szükséges lesz rá + redirect to Settings
+        if !isDeviceCapableOfMonitoring || isAppAuthorizedToLocate != CLAuthorizationStatus.Authorized {
+            return false
+        }
+        */
+        return true
+    }
+    
+    
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+        let appearance = UINavigationBar.appearance()
+        appearance.barTintColor = UIColor(red: CGFloat(0.1328), green: CGFloat(0.3242), blue: CGFloat(0.46875), alpha: CGFloat(1.0))
+        appearance.tintColor = UIColor.whiteColor()
+        //appearance.titleTextAttributes?.updateValue(UIColor.whiteColor(), forKey: NSForegroundColorAttributeName)
+        //appearance.titleTextAttributes?.updateValue(UIFont(name: "AvenirNext-Bold", size: CGFloat(28))!, forKey: NSFontAttributeName)
+        
+        appearance.barStyle = UIBarStyle.Black
+
+        
         // Override point for customization after application launch.
         return true
     }
@@ -27,6 +50,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidEnterBackground(application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+        let beaconManager = BeaconManager.beaconManager
+        beaconManager.persistData()
     }
 
     func applicationWillEnterForeground(application: UIApplication) {
@@ -39,6 +64,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+        let beaconManager = BeaconManager.beaconManager
+        beaconManager.persistData()
+        println("app will terminate")
     }
 
 
