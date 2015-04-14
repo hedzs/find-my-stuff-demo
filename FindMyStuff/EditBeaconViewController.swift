@@ -107,6 +107,9 @@ class EditBeaconViewController: UITableViewController, MKMapViewDelegate, UIImag
                 beaconImage.image = nil
             }
             beaconImage.setNeedsDisplay()
+            if beacon.isTracked {
+                beaconManager.restartRangingService(beacon.beaconRegion)
+            }
         }
         
     }

@@ -16,13 +16,13 @@ class BeaconItem: NSObject, NSCoding {
             beaconRegion.notifyEntryStateOnDisplay = true
         }
     }
-
     
     var beaconName:String {
         get {
             return beaconRegion.identifier
         }
     }
+    
     var isTracked = false
     
     var isNotificationOnWhenGetsInRange = false {
@@ -45,9 +45,8 @@ class BeaconItem: NSObject, NSCoding {
             }
         }
     }
+    
     var imageURL: String?
-    
-    
     var lastKnownProximity = CLProximity.Unknown
     var lastKnownLocation : CLLocationCoordinate2D?
 

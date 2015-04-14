@@ -115,9 +115,6 @@ class BeaconTableController: UITableViewController {
         }
     }
     
-    
-    
-    
     var editedBeacon: BeaconItem?
     
 }

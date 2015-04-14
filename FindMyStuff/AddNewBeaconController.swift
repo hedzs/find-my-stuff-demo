@@ -111,17 +111,37 @@ class AddNewBeaconController: UIViewController {
         if field.isEqual(sharedIDText) {
             return true
         } else if field.isEqual(newBeaconName) {
-            return !field.text.isEmpty
+            let validity = !field.text.isEmpty
+            if !validity {
+                shootAlertWithMessage("You must add a name to a beacon")
+            }
+            return validity
         } else if field.isEqual(newBeaconUUID) {
-            return beaconManager.isValidUUID(field.text)
+            let validity = beaconManager.isValidUUID(field.text)
+            if !validity {
+                shootAlertWithMessage("Invalid UUID!")
+            }
+            return validity
         } else if field.isEqual(newBeaconMajor) {
-            return (field.text.toInt() < 256 && field.text.toInt() >= 0 || field.text.isEmpty) ? true : false
+            let validity = (field.text.toInt() < 256 && field.text.toInt() >= 0 || field.text.isEmpty) ? true : false
+            if !validity {
+                shootAlertWithMessage("The Major must be between 0 and 255")
+            }
+            return validity
         } else if field.isEqual(newBeaconMinor) {
-            return (field.text.toInt() < 256 && field.text.toInt() >= 0 || field.text.isEmpty) ? true : false
+            let validity = (field.text.toInt() < 256 && field.text.toInt() >= 0 || field.text.isEmpty) ? true : false
+            if !validity {
+                shootAlertWithMessage("The Major must be between 0 and 255")
+            }
+            return validity
         }
       return false
     }
     
+    func shootAlertWithMessage(message: String) {
+        let alert = UIAlertView(title: "Error", message: message, delegate: nil, cancelButtonTitle: nil, otherButtonTitles: "OK")
+        alert.show()
+    }
 }
 
 

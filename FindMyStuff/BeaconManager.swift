@@ -135,12 +135,20 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
             locationManager.stopMonitoringForRegion(beacon.beaconRegion)
             locationManager.stopRangingBeaconsInRegion(beacon.beaconRegion)
             beacon.isTracked = !beacon.isTracked
+            beacon.lastKnownProximity = CLProximity.Unknown
         } else {
             locationManager.startMonitoringForRegion(beacon.beaconRegion)
             locationManager.startRangingBeaconsInRegion(beacon.beaconRegion)
             beacon.isTracked = !beacon.isTracked
         }
         
+    }
+    
+    func restartRangingService(region: CLBeaconRegion) {
+        locationManager.stopMonitoringForRegion(region)
+        locationManager.stopRangingBeaconsInRegion(region)
+        locationManager.startMonitoringForRegion(region)
+        locationManager.startRangingBeaconsInRegion(region)
     }
     
     
