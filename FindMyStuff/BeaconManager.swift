@@ -23,22 +23,33 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
 
     let locationManager = CLLocationManager()
     let notificationManager = NSNotificationCenter.defaultCenter()
+    var location : CLLocationCoordinate2D?
     var beacons = [BeaconItem]()
     var sharedBeacons = [BeaconItem]()
+    
     
     // Inicializálás
     override init() {
         super.init()
+        setupNotification() // UTIL
         locationManager.delegate = self
-        locationManager.requestWhenInUseAuthorization()
+        locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+        locationManager.requestAlwaysAuthorization()
+        locationManager.startUpdatingLocation()
+        
         
         let defaults = NSUserDefaults.standardUserDefaults()
         if let data = defaults.objectForKey("beacons") as? NSData {
-            beacons = NSKeyedUnarchiver.unarchiveObjectWithData(data) as [BeaconItem]
+            beacons = NSKeyedUnarchiver.unarchiveObjectWithData(data) as! [BeaconItem]
         }
         
         
     
+        // TESZT
+        
+        for beacon in beacons {
+            beacon.beaconRegion.notifyEntryStateOnDisplay = true
+        }
         
         // tesztsor
 //        var uuid = NSUUID(UUIDString:"EBEFD083-70A2-47C8-9837-E7B5634DF524")
@@ -55,7 +66,7 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
     func isValidUUID(uuid: String) -> Bool {
         let NSuuid: NSString = uuid.uppercaseString
         let uuidPattern = NSRegularExpression(pattern: "[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}", options: .CaseInsensitive , error: nil)
-        var result = uuidPattern?.firstMatchInString(NSuuid, options: nil, range: NSMakeRange(0, NSuuid.length))
+        var result = uuidPattern?.firstMatchInString(NSuuid as String, options: nil, range: NSMakeRange(0, NSuuid.length))
         if result != nil {
             return true
         }
@@ -107,15 +118,25 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
         println(beacons.count)
         let notification = NSNotification(name: "BeaconAddNotification", object: beacon)
         notificationManager.postNotification(notification)
+        self.persistData()
 
+    }
+    
+    func removeBeacon(numberOfBeacon: Int ) {
+        if numberOfBeacon >= 0 && numberOfBeacon < beacons.count {
+            beacons.removeAtIndex(numberOfBeacon)
+        }
+        self.persistData()
     }
     
     func toggleRanging(numberOfBeacon: Int) {
         let beacon = beacons[numberOfBeacon]
         if beacon.isTracked {
+            locationManager.stopMonitoringForRegion(beacon.beaconRegion)
             locationManager.stopRangingBeaconsInRegion(beacon.beaconRegion)
             beacon.isTracked = !beacon.isTracked
         } else {
+            locationManager.startMonitoringForRegion(beacon.beaconRegion)
             locationManager.startRangingBeaconsInRegion(beacon.beaconRegion)
             beacon.isTracked = !beacon.isTracked
         }
@@ -127,18 +148,40 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
     
     func locationManager(manager: CLLocationManager!, didRangeBeacons beacons: [AnyObject]!, inRegion region: CLBeaconRegion!) {
         let itemFound = matchBeaconRegion(region)
-        let beaconsInRange = beacons as [CLBeacon]
+        let beaconsInRange = beacons as! [CLBeacon]
         for beacon in beaconsInRange {
             if itemFound?.beaconRegion.proximityUUID == beacon.proximityUUID {
+                //println(beacon)
                 if itemFound?.lastKnownProximity != beacon.proximity { // itt lehet nem kell dupla ellenőrzés mert egy beacon lesz a beaconsben, ha megvan adva a region uuid major minor is
                     itemFound?.lastKnownProximity = beacon.proximity
                     let notification = NSNotification(name: "LocationUpdateNotification", object: beacon)
                     notificationManager.postNotification(notification)
-                    println("valtozott a proximity")
+                    //println("valtozott a proximity")
                     println(beacon.proximity)
+                    if itemFound?.lastKnownProximity != CLProximity.Unknown {
+                        itemFound?.lastKnownLocation = self.location
+                        // update location of IBEACON
+                    }
                 }
             }
         }
+    }
+    
+    func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [AnyObject]!) {
+        if let newLocation = locations.last as? CLLocation {
+            self.location = newLocation.coordinate
+        }
+    }
+    
+    
+    func locationManager(manager: CLLocationManager!, didExitRegion region: CLRegion!) {
+        scheduleSimpleNotification("\(region.identifier) is out of region!") // UTIL
+       println("erkezett a didExitRegion")
+    }
+    
+    func locationManager(manager: CLLocationManager!, didEnterRegion region: CLRegion!) {
+        scheduleSimpleNotification("\(region.identifier) is in region!") // UTIL
+        println("erkezett a didENterRegion")
     }
     
     // privát metódusok

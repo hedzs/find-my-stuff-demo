@@ -25,7 +25,7 @@ class BeaconTableController: UITableViewController {
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("BeaconCell", forIndexPath: indexPath) as BeaconItemCell
+        let cell = tableView.dequeueReusableCellWithIdentifier("BeaconCell", forIndexPath: indexPath) as! BeaconItemCell
         let beacon = beaconManager.beacons[indexPath.row]
         cell.beaconNameLabel.text = "  \(beacon.beaconName)  "
         cell.beaconLocationLabel.text  = beacon.lastKnownProximity.description
@@ -37,7 +37,17 @@ class BeaconTableController: UITableViewController {
             default: break
         }
         cell.isTracked = beacon.isTracked
-        cell.cellDelegate = self // TBD
+        cell.cellDelegate = self
+        cell.beaconBackground.hidden = true
+        if let imageURL = beacon.imageURL {
+            if let image = UIImage(contentsOfFile: imageURL) {
+                println("valtas a kepben")
+                cell.changeImage(image)
+                cell.beaconBackground.hidden = false
+            }
+        } else {
+            cell.beaconImage.image = nil
+        }
         return cell
     }
     
@@ -45,7 +55,17 @@ class BeaconTableController: UITableViewController {
         
     }
     
+    override func tableView(tableView: UITableView, canPerformAction action: Selector, forRowAtIndexPath indexPath: NSIndexPath, withSender sender: AnyObject) -> Bool {
+        //return ( action == Selector("delete:") || action == Selector("edit:"))
+        return true
+    }
+    
+    override func tableView(tableView: UITableView, performAction action: Selector, forRowAtIndexPath indexPath: NSIndexPath, withSender sender: AnyObject!) {
+        // kell a menühöz
+    }
+    
     override func tableView(tableView: UITableView, shouldShowMenuForRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        
         return true
     }
     
@@ -78,11 +98,27 @@ class BeaconTableController: UITableViewController {
     
     override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if section == 0 {
-            return CGFloat(1)
+            return CGFloat(0.01)
         } else {
             return CGFloat(15)
         }
     }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == "EditBeaconSegue" {
+            if let destinationVC = segue.destinationViewController as? EditBeaconViewController {
+                if let beacon = self.editedBeacon {
+                    destinationVC.beacon = beacon
+                    println("destinationVC beallitva")
+                }
+            }
+        }
+    }
+    
+    
+    
+    
+    var editedBeacon: BeaconItem?
     
 }
 
@@ -90,8 +126,7 @@ class BeaconTableController: UITableViewController {
 
 
 
-
-// MARK: - Delegate Functions
+//// MARK: - Delegate Functions
 extension BeaconTableController: BeaconItemCellDelegate {
     func locationUpdate(cell: BeaconItemCell) -> String {
         return ""
@@ -100,12 +135,27 @@ extension BeaconTableController: BeaconItemCellDelegate {
     func nameUpdate(cell: BeaconItemCell) -> String {
        return ""
     }
+    
+    func deleteCell(cell: BeaconItemCell) {
+        if let indexPath = self.tableView.indexPathForCell(cell) {
+            beaconManager.removeBeacon(indexPath.row)
+        }
+        self.tableView.reloadData()
+    }
+    
+    func editCell(cell: BeaconItemCell) {
+        if let indexPath = self.tableView.indexPathForCell(cell) {
+            self.editedBeacon = beaconManager.beacons[indexPath.row]
+            performSegueWithIdentifier("EditBeaconSegue", sender: self)
+        }
+    }
 }
 
-// MARK: Notification management
+// MARK: Notification management and initial setup
 
 extension BeaconTableController {
     override func viewDidLoad() {
+        
         notificationCenter.addObserverForName("LocationUpdateNotification", object: nil, queue: NSOperationQueue.mainQueue()) { (notification) -> Void in
             self.tableView.reloadData()
             println("Jött egy notification az updatere!")
@@ -118,17 +168,24 @@ extension BeaconTableController {
         }
 
         
-        let testPersistence = OnlinePersistanceManager()
-        let test = testPersistence.checkNodeAvailability("Nodelee")
-        println("A teszt eredménye: \(test)")
+        let editMenu = UIMenuItem(title: "Edit", action: "edit:")
+        var menuController = UIMenuController()
+        menuController.setMenuVisible(true, animated: true)
+        menuController.menuItems = [UIMenuItem]()
+        menuController.menuItems?.append(editMenu)
+        menuController.update()
     }
     
     override func viewWillDisappear(animated: Bool) {
+        beaconManager.persistData()
         self.title = "Cancel"
     }
     
     override func viewWillAppear(animated: Bool) {
+        beaconManager.persistData()
         self.title = "Find my stuff"
+        self.tableView.reloadData()
+        self.tableView.setNeedsDisplay()
     }
 }
 

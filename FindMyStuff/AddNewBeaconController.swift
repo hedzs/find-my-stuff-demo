@@ -11,6 +11,9 @@ import UIKit
 class AddNewBeaconController: UIViewController {
     
     let beaconManager = BeaconManager.beaconManager
+    lazy var imagePicker = UIImagePickerController()
+    
+    
     
     @IBOutlet weak var sharedIDText: UITextField! {
         didSet {
@@ -52,6 +55,8 @@ class AddNewBeaconController: UIViewController {
         self.navigationItem.rightBarButtonItem = addBarItem
         let tap = UITapGestureRecognizer(target: self, action: "dismissKeyboard")
         self.view.addGestureRecognizer(tap)
+        
+
     }
     
     func addBeacon(button: UIBarButtonItem) {
@@ -71,7 +76,6 @@ class AddNewBeaconController: UIViewController {
                     let minor = newBeaconMinor.text.toInt() ?? nil
                     if beaconManager.addBeacon(UUID, major: major, minor: minor, identifier: name) {
                         self.navigationController?.popToRootViewControllerAnimated(true)
-                        //dismissViewControllerAnimated(true, completion: nil)
                     }
             }
         }
@@ -111,9 +115,9 @@ class AddNewBeaconController: UIViewController {
         } else if field.isEqual(newBeaconUUID) {
             return beaconManager.isValidUUID(field.text)
         } else if field.isEqual(newBeaconMajor) {
-            return (field.text.toInt()? < 256 && field.text.toInt()? >= 0 || field.text.isEmpty) ? true : false
+            return (field.text.toInt() < 256 && field.text.toInt() >= 0 || field.text.isEmpty) ? true : false
         } else if field.isEqual(newBeaconMinor) {
-            return (field.text.toInt()? < 256 && field.text.toInt()? >= 0 || field.text.isEmpty) ? true : false
+            return (field.text.toInt() < 256 && field.text.toInt() >= 0 || field.text.isEmpty) ? true : false
         }
       return false
     }

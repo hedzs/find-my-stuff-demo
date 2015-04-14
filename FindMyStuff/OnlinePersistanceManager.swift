@@ -14,7 +14,7 @@ class OnlinePersistanceManager {
     }
     
     
-    func checkNodeAvailability(nodeName: String) -> Bool {
+    func checkNodeAvailability(nodeName: String) {
         var childRef = Constants.rootRef.childByAppendingPath(nodeName)
         var availability = false
         let backgroundqueue = dispatch_get_global_queue(Int(QOS_CLASS_BACKGROUND.value), 0)
@@ -22,9 +22,9 @@ class OnlinePersistanceManager {
             dispatch_barrier_async(backgroundqueue) {
             childRef.observeSingleEventOfType(.Value, withBlock: { snapshot in
                 println("Observer added")
-                println(snapshot.value as NSObject)
+                println(snapshot.value as! NSObject)
                 println(NSNull())
-                if snapshot.value as NSObject == NSNull() {
+                if snapshot.value as! NSObject == NSNull() {
                     availability = true
                     println("true lett")
                     
@@ -34,6 +34,5 @@ class OnlinePersistanceManager {
           }
         }
         println("second")
-        return availability
     }
 }
