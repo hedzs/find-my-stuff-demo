@@ -12,6 +12,8 @@ class BeaconTableController: UITableViewController {
     
     let beaconManager = BeaconManager.beaconManager
     let notificationCenter = NSNotificationCenter.defaultCenter()
+    let persistanceManager = OnlinePersistanceManager()
+    var editedBeacon: BeaconItem?
     
     
     // MARK: Table Delegate functions
@@ -48,6 +50,11 @@ class BeaconTableController: UITableViewController {
         } else {
             cell.beaconImage.image = nil
         }
+        
+        //TESZTSOR:
+            //persistanceManager.testBeaconUpload(beacon)
+            //persistanceManager.testBeaconDownload()
+        // EDDIG
         return cell
     }
     
@@ -70,25 +77,17 @@ class BeaconTableController: UITableViewController {
     }
     
     override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [AnyObject]? {
-        var shareAction = UITableViewRowAction(style: UITableViewRowActionStyle.Normal, title: "Share", handler: { (action: UITableViewRowAction!, indexPath: NSIndexPath!) -> Void in
-            
-                let sharePopUp = UIAlertController(title: "Share beacon UUID", message: "By using this identifier, you can share you beacon's uuid with anyone. \n Privacy disclaimer", preferredStyle: .Alert )
-                let shareAction = UIAlertAction(title: "Share", style: UIAlertActionStyle.Default, handler: nil)
-                let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil)
-            
-                sharePopUp.addTextFieldWithConfigurationHandler({ (textField: UITextField!) -> Void in
-                    var randomText = NSProcessInfo.processInfo().globallyUniqueString
-                    let index = advance(randomText.startIndex,8)
-                    randomText = randomText.substringToIndex(index)
-                    textField.text = randomText
-                })
-            
-                sharePopUp.addAction(shareAction)
-                sharePopUp.addAction(cancelAction)
-                self.presentViewController(sharePopUp, animated: true, completion: nil)
-            }
-        )
-        return [shareAction]
+        let beacon = beaconManager.beacons[indexPath.row]
+        var returnedMenuItem:[AnyObject]?
+        
+        if let sharedNode = beacon.sharedNodeDescriptor {
+            returnedMenuItem = self.createHiddenMenuItem(.Unshare, forBeaconItem: beacon)
+        } else {
+            returnedMenuItem =  self.createHiddenMenuItem(.Share, forBeaconItem: beacon)
+            self.editedBeacon = beacon
+        }
+        
+        return returnedMenuItem
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
@@ -109,21 +108,73 @@ class BeaconTableController: UITableViewController {
             if let destinationVC = segue.destinationViewController as? EditBeaconViewController {
                 if let beacon = self.editedBeacon {
                     destinationVC.beacon = beacon
-                    println("destinationVC beallitva")
                 }
             }
         }
     }
-    
-    var editedBeacon: BeaconItem?
-    
 }
 
-// MARK: - Initial setup
+extension BeaconTableController {
+    enum menuItemType {
+        case Share
+        case Unshare
+    }
+    
+    func createHiddenMenuItem(type: menuItemType, forBeaconItem: BeaconItem) -> [AnyObject]? {
+        switch type {
+        case .Share:
+            var shareAction = UITableViewRowAction(style: UITableViewRowActionStyle.Normal, title: "Share", handler: { (action: UITableViewRowAction!, indexPath: NSIndexPath!) -> Void in
+                
+                let sharePopUp = UIAlertController(title: "Share beacon UUID", message: "By using this identifier, you can share you beacon's uuid with anyone. \n Please not that by using this feature, your beacon UUID becomes public", preferredStyle: .Alert )
+                
+                sharePopUp.addTextFieldWithConfigurationHandler({ (textField: UITextField!) -> Void in
+                    var randomText = NSProcessInfo.processInfo().globallyUniqueString
+                    let index = advance(randomText.startIndex,8)
+                    randomText = randomText.substringToIndex(index)
+                    textField.text = randomText
+                })
+                
+                let shareAction = UIAlertAction(title: "Share", style: UIAlertActionStyle.Default, handler: { (alert) -> Void in
+                    if let uiTextField = sharePopUp.textFields?.first as? UITextField where !uiTextField.text.isEmpty {
+                        println(uiTextField.text)
+                        self.persistanceManager.checkNodeAvailability(uiTextField.text)
+                    }
+                })
+                let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil)
+                
+                sharePopUp.addAction(shareAction)
+                sharePopUp.addAction(cancelAction)
+                self.presentViewController(sharePopUp, animated: true, completion: nil)
+                }
+            )
+            return [shareAction]
+        
+        case .Unshare:
+            var shareAction = UITableViewRowAction(style: UITableViewRowActionStyle.Normal, title: "Unshare", handler: { (action: UITableViewRowAction!, indexPath: NSIndexPath!) -> Void in
+                
+                let sharePopUp = UIAlertController(title: "Unshare beacon UUID", message: "You can remove your shared beacon information by pressing Ok", preferredStyle: .Alert )
+                
+                let shareAction = UIAlertAction(title: "Unshare", style: UIAlertActionStyle.Default, handler: { (alert) -> Void in
+                    self.persistanceManager.removeNode(forBeaconItem.sharedNodeDescriptor!)
+                    forBeaconItem.sharedNodeDescriptor = nil
+                })
+                let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil)
+                
+                sharePopUp.addAction(shareAction)
+                sharePopUp.addAction(cancelAction)
+                self.presentViewController(sharePopUp, animated: true, completion: nil)
+                }
+            )
+            return [shareAction]
+        default:
+            return nil
+        }
+    }
+}
 
 
 
-//// MARK: - Delegate Functions
+// MARK: - Delegate Functions
 extension BeaconTableController: BeaconItemCellDelegate {
     func locationUpdate(cell: BeaconItemCell) -> String {
         return ""
@@ -161,10 +212,30 @@ extension BeaconTableController {
         notificationCenter.addObserverForName("BeaconAddNotification", object: nil, queue: NSOperationQueue.mainQueue()) { (notification) -> Void in
             self.tableView.reloadData()
             self.tableView.setNeedsDisplay()
+            //self.tableView.reloadRowsAtIndexPaths([NSIndexPath(forRow: 0, inSection: 0)], withRowAnimation: UITableViewRowAnimation.Automatic)
             println("Jött egy notification az updatere!")
         }
-
         
+        
+        
+        notificationCenter.addObserverForName("SharedNameIsAvailable", object: nil , queue: NSOperationQueue.mainQueue()) { (notification) -> Void in
+            println("Elérhető a kért név")
+            if let userInfo = notification.userInfo as? [String:String] {
+                if let destination = userInfo["destination"], beacon = self.editedBeacon {
+                    self.persistanceManager.uploadBeacon(beacon, destination: destination)
+                    println("feltöltjük a beacon infot!")
+                }
+            }
+        }
+
+        notificationCenter.addObserverForName("SharedNameIsNOTAvailable", object: nil, queue: NSOperationQueue.mainQueue()) { (notification) -> Void in
+            println("Nem elérhető a kért név")
+        }
+
+        notificationCenter.addObserverForName("SharedBeaconCannotBeFound", object: nil, queue: NSOperationQueue.mainQueue()) { (notification) -> Void in
+            println("Nem található a megosztot beacon")
+        }
+
         let editMenu = UIMenuItem(title: "Edit", action: "edit:")
         var menuController = UIMenuController()
         menuController.setMenuVisible(true, animated: true)
@@ -183,6 +254,11 @@ extension BeaconTableController {
         self.title = "Find my stuff"
         self.tableView.reloadData()
         self.tableView.setNeedsDisplay()
+        //TESZTSOR:
+        //persistanceManager.testBeaconUpload(beacon)
+        //persistanceManager.testBeaconDownload()
+        // EDDIG
+
     }
 }
 

@@ -8,8 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		26072AC41AB8C06400A38430 /* OnlinePersistanceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26072AC31AB8C06400A38430 /* OnlinePersistanceManager.swift */; };
-		26072AC91ABA1AC100A38430 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26072AC81ABA1AC100A38430 /* Utils.swift */; };
 		261477B6BBE497315367E77B /* libPods-FindMyStuff.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 02D0EF68349599A1CB411A09 /* libPods-FindMyStuff.a */; };
+		2614E4BE1AE0396300B7B269 /* Packager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2614E4BD1AE0396300B7B269 /* Packager.swift */; };
 		264D73701ADC512800FF2CBF /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 264D736F1ADC512800FF2CBF /* Util.swift */; };
 		265377EB1AA3D5530074FB37 /* BeaconItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 265377EA1AA3D5530074FB37 /* BeaconItemCell.swift */; };
 		266149001AB076AA0037CBCD /* AddNewBeaconController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 266148FF1AB076AA0037CBCD /* AddNewBeaconController.swift */; };
@@ -22,7 +22,6 @@
 		26CBDDAC1A9728DF0001D16B /* FindMyStuffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26CBDDAB1A9728DF0001D16B /* FindMyStuffTests.swift */; };
 		26CBDDB61A972C6A0001D16B /* BeaconItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26CBDDB51A972C6A0001D16B /* BeaconItem.swift */; };
 		26CBDDBC1A9B6D530001D16B /* BeaconManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26CBDDBB1A9B6D530001D16B /* BeaconManager.swift */; };
-		26CBDDBF1A9E749E0001D16B /* logicAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26CBDDBE1A9E749E0001D16B /* logicAPI.swift */; };
 		26CBDDC11AA358C20001D16B /* BeaconTableController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26CBDDC01AA358C20001D16B /* BeaconTableController.swift */; };
 /* End PBXBuildFile section */
 
@@ -40,7 +39,7 @@
 		02D0EF68349599A1CB411A09 /* libPods-FindMyStuff.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FindMyStuff.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		26072AC31AB8C06400A38430 /* OnlinePersistanceManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnlinePersistanceManager.swift; sourceTree = "<group>"; };
 		26072AC51AB8C16900A38430 /* FindMyStuff-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FindMyStuff-Bridging-Header.h"; sourceTree = "<group>"; };
-		26072AC81ABA1AC100A38430 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Utils.swift; path = FindMyStuffTests/Utils.swift; sourceTree = SOURCE_ROOT; };
+		2614E4BD1AE0396300B7B269 /* Packager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Packager.swift; sourceTree = "<group>"; };
 		264D736F1ADC512800FF2CBF /* Util.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
 		265377EA1AA3D5530074FB37 /* BeaconItemCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BeaconItemCell.swift; sourceTree = "<group>"; };
 		266148FF1AB076AA0037CBCD /* AddNewBeaconController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddNewBeaconController.swift; sourceTree = "<group>"; };
@@ -57,7 +56,6 @@
 		26CBDDAB1A9728DF0001D16B /* FindMyStuffTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindMyStuffTests.swift; sourceTree = "<group>"; };
 		26CBDDB51A972C6A0001D16B /* BeaconItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeaconItem.swift; sourceTree = "<group>"; };
 		26CBDDBB1A9B6D530001D16B /* BeaconManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeaconManager.swift; sourceTree = "<group>"; };
-		26CBDDBE1A9E749E0001D16B /* logicAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = logicAPI.swift; sourceTree = "<group>"; };
 		26CBDDC01AA358C20001D16B /* BeaconTableController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeaconTableController.swift; sourceTree = "<group>"; };
 		B703498D9C32FB9DE80521F7 /* Pods-FindMyStuff.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FindMyStuff.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FindMyStuff/Pods-FindMyStuff.debug.xcconfig"; sourceTree = "<group>"; };
 		C13D7735D7C5A35FE9CB2FC2 /* Pods-FindMyStuff.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FindMyStuff.release.xcconfig"; path = "Pods/Target Support Files/Pods-FindMyStuff/Pods-FindMyStuff.release.xcconfig"; sourceTree = "<group>"; };
@@ -83,6 +81,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2614E4BB1ADE621300B7B269 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				26669B971AC4AE7400522D1C /* EditBeaconViewController.swift */,
+				266148FF1AB076AA0037CBCD /* AddNewBeaconController.swift */,
+				26CBDDC01AA358C20001D16B /* BeaconTableController.swift */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+		2614E4BC1ADE622A00B7B269 /* Custom views */ = {
+			isa = PBXGroup;
+			children = (
+				265377EA1AA3D5530074FB37 /* BeaconItemCell.swift */,
+			);
+			name = "Custom views";
+			sourceTree = "<group>";
+		};
 		26CBDD871A9728DF0001D16B = {
 			isa = PBXGroup;
 			children = (
@@ -106,17 +122,13 @@
 		26CBDD921A9728DF0001D16B /* FindMyStuff */ = {
 			isa = PBXGroup;
 			children = (
-				26072AC31AB8C06400A38430 /* OnlinePersistanceManager.swift */,
-				265377EA1AA3D5530074FB37 /* BeaconItemCell.swift */,
 				26CBDD951A9728DF0001D16B /* AppDelegate.swift */,
 				26CBDD991A9728DF0001D16B /* Main.storyboard */,
-				26669B971AC4AE7400522D1C /* EditBeaconViewController.swift */,
-				266148FF1AB076AA0037CBCD /* AddNewBeaconController.swift */,
-				26CBDDC01AA358C20001D16B /* BeaconTableController.swift */,
-				26CBDDBD1A9E74060001D16B /* AppLogic */,
+				2614E4BC1ADE622A00B7B269 /* Custom views */,
+				2614E4BB1ADE621300B7B269 /* Controllers */,
+				26CBDDBD1A9E74060001D16B /* Model */,
 				26CBDD931A9728DF0001D16B /* Supporting Files */,
 				26072AC51AB8C16900A38430 /* FindMyStuff-Bridging-Header.h */,
-				264D736F1ADC512800FF2CBF /* Util.swift */,
 			);
 			path = FindMyStuff;
 			sourceTree = "<group>";
@@ -124,6 +136,7 @@
 		26CBDD931A9728DF0001D16B /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				264D736F1ADC512800FF2CBF /* Util.swift */,
 				26CBDD9E1A9728DF0001D16B /* LaunchScreen.xib */,
 				26CBDD9C1A9728DF0001D16B /* Images.xcassets */,
 				26CBDD941A9728DF0001D16B /* Info.plist */,
@@ -148,15 +161,15 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		26CBDDBD1A9E74060001D16B /* AppLogic */ = {
+		26CBDDBD1A9E74060001D16B /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				26072AC81ABA1AC100A38430 /* Utils.swift */,
+				26072AC31AB8C06400A38430 /* OnlinePersistanceManager.swift */,
+				2614E4BD1AE0396300B7B269 /* Packager.swift */,
 				26CBDDB51A972C6A0001D16B /* BeaconItem.swift */,
 				26CBDDBB1A9B6D530001D16B /* BeaconManager.swift */,
-				26CBDDBE1A9E749E0001D16B /* logicAPI.swift */,
 			);
-			name = AppLogic;
+			name = Model;
 			sourceTree = "<group>";
 		};
 		6F56DFF5A9E8FC870CA36206 /* Pods */ = {
@@ -318,11 +331,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2614E4BE1AE0396300B7B269 /* Packager.swift in Sources */,
 				265377EB1AA3D5530074FB37 /* BeaconItemCell.swift in Sources */,
 				26669B981AC4AE7400522D1C /* EditBeaconViewController.swift in Sources */,
 				26CBDDC11AA358C20001D16B /* BeaconTableController.swift in Sources */,
 				26072AC41AB8C06400A38430 /* OnlinePersistanceManager.swift in Sources */,
-				26CBDDBF1A9E749E0001D16B /* logicAPI.swift in Sources */,
 				26CBDD961A9728DF0001D16B /* AppDelegate.swift in Sources */,
 				266149001AB076AA0037CBCD /* AddNewBeaconController.swift in Sources */,
 				264D73701ADC512800FF2CBF /* Util.swift in Sources */,
@@ -336,7 +349,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				26CBDDAC1A9728DF0001D16B /* FindMyStuffTests.swift in Sources */,
-				26072AC91ABA1AC100A38430 /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

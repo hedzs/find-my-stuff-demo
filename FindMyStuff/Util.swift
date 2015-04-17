@@ -9,19 +9,11 @@
 import Foundation
 import UIKit
 
-var GlobalVariable = true
-
-func globalFunc() {
-    println("teszta")
-}
-
 func setupNotification() {
     let notificationSettings = UIApplication.sharedApplication().currentUserNotificationSettings()
     if (notificationSettings.types == UIUserNotificationType.None){
         var notificationTypes: UIUserNotificationType = UIUserNotificationType.Alert | UIUserNotificationType.Sound
         
-        
-        // Specify the notification actions.
         var outOfRangeAction = UIMutableUserNotificationAction()
         outOfRangeAction.identifier = "outOfRange"
         outOfRangeAction.title = "Beacon out of range"
@@ -46,20 +38,20 @@ func setupNotification() {
         
         let categoriesForSettings = NSSet(objects: beaconActionCategory)
         
-        // Register the notification settings.
         let newNotificationSettings = UIUserNotificationSettings(forTypes: notificationTypes, categories: categoriesForSettings as Set<NSObject>)
         UIApplication.sharedApplication().registerUserNotificationSettings(newNotificationSettings)
         
     }
 }
 
-func scheduleSimpleNotification(message: String) {
+func scheduleSimpleNotification(message: String, identifier: String) {
     UIApplication.sharedApplication().cancelAllLocalNotifications()
     var localNotification = UILocalNotification()
     localNotification.fireDate = nil
     localNotification.alertBody = message
-    localNotification.alertAction = "Beacon"
-    localNotification.category = "shoppingListReminderCategory"
+    localNotification.alertAction = identifier
+    localNotification.category = "beaconActionCategory"
+    localNotification.soundName = UILocalNotificationDefaultSoundName
     UIApplication.sharedApplication().scheduleLocalNotification(localNotification)
 }
 

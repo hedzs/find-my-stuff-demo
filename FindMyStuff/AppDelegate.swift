@@ -16,6 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     let isDeviceCapableOfMonitoring = CLLocationManager.isRangingAvailable()
     let isAppAuthorizedToLocate = CLLocationManager.authorizationStatus()
+    let beaconManager = BeaconManager.beaconManager
     
     
     func application(application: UIApplication, willFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]?) -> Bool {
@@ -50,7 +51,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidEnterBackground(application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-        let beaconManager = BeaconManager.beaconManager
         beaconManager.persistData()
         CLLocationManager().stopUpdatingLocation()
     }
@@ -66,8 +66,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-        let beaconManager = BeaconManager.beaconManager
         beaconManager.persistData()
+        beaconManager.shutDownActiveTrackingForAllBeaconRegions()
+        
+        CLLocationManager().stopUpdatingLocation()
+        //NSNotificationCenter.removeObserver(self)
         println("app will terminate")
     }
 

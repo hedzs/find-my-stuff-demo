@@ -77,8 +77,12 @@ class EditBeaconViewController: UITableViewController, MKMapViewDelegate, UIImag
     
     
     func doneEditing() {
-        beacon?.isNotificationOnWhenGetsInRange = beaconInRangeSwitch.on
-        beacon?.isNotificationOnWhenProximityUnknown = beaconUnknownSwitch.on
+        if let beacon = self.beacon {
+            beaconManager.toggleNotifyOnEntry(beacon, toState: beaconInRangeSwitch.on)
+            beaconManager.toggleNotifyOnExit(beacon, toState: beaconUnknownSwitch.on)
+        }
+//        beacon?.isNotificationOnWhenGetsInRange = beaconInRangeSwitch.on
+//        beacon?.isNotificationOnWhenProximityUnknown = beaconUnknownSwitch.on
         self.navigationController?.popToRootViewControllerAnimated(true)
     }
     

@@ -24,7 +24,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label autoresizesSubviews="NO" opaque="NO" userInteractionEnabled="NO" alpha="0.89999999999999991" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="  Beacon name  " lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZEI-C5-UyG">
-                                            <rect key="frame" x="8" y="42" width="146" height="27.5"/>
+                                            <rect key="frame" x="8" y="42" width="146" height="28"/>
                                             <color key="backgroundColor" red="0.13333333333333333" green="0.32549019607843138" blue="0.47058823529411764" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             <fontDescription key="fontDescription" name="AvenirNext-DemiBold" family="Avenir Next" pointSize="20"/>
                                             <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
@@ -39,7 +39,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8VF-lc-eeQ">
-                                            <rect key="frame" x="501" y="24.5" width="92" height="92"/>
+                                            <rect key="frame" x="501" y="24" width="92" height="92"/>
                                             <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="92" id="e7d-rc-oBk"/>
@@ -56,6 +56,7 @@
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="ZEI-C5-UyG" firstAttribute="leading" secondItem="ZQH-jd-Kgn" secondAttribute="leadingMargin" id="Bjf-Ze-0m6"/>
+                                        <constraint firstItem="PAb-Jg-QXJ" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="ZEI-C5-UyG" secondAttribute="trailing" constant="8" symbolic="YES" id="DzY-aD-iMq"/>
                                         <constraint firstAttribute="centerY" secondItem="PAb-Jg-QXJ" secondAttribute="centerY" id="Ywc-J6-ATH"/>
                                         <constraint firstAttribute="centerY" secondItem="ZEI-C5-UyG" secondAttribute="bottom" id="eWq-h0-cGf"/>
                                         <constraint firstItem="8VF-lc-eeQ" firstAttribute="centerX" secondItem="PAb-Jg-QXJ" secondAttribute="centerX" id="j5g-qq-pn1"/>

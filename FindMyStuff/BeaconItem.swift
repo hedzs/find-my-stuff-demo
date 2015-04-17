@@ -29,10 +29,8 @@ class BeaconItem: NSObject, NSCoding {
         didSet {
             if isNotificationOnWhenGetsInRange == true {
                 beaconRegion.notifyOnEntry = true
-                beaconRegion.notifyEntryStateOnDisplay = true // TBD
-            } else {
+                } else {
                 beaconRegion.notifyOnEntry = false
-                beaconRegion.notifyEntryStateOnDisplay = true // TBD
             }
         }
     }
@@ -46,6 +44,7 @@ class BeaconItem: NSObject, NSCoding {
         }
     }
     
+    var sharedNodeDescriptor: String?
     var imageURL: String?
     var lastKnownProximity = CLProximity.Unknown
     var lastKnownLocation : CLLocationCoordinate2D?
@@ -63,15 +62,17 @@ class BeaconItem: NSObject, NSCoding {
         } else {
             beaconRegion = CLBeaconRegion(proximityUUID: uuid, major: major, minor: minor, identifier: identifier)
         }
-        
+        self.beaconRegion.notifyOnEntry = false
+        self.beaconRegion.notifyOnExit = false
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
         aCoder.encodeObject(beaconRegion, forKey: "beaconRegion")
-        aCoder.encodeBool(isTracked, forKey: "isTracked")
+        //aCoder.encodeBool(isTracked, forKey: "isTracked")
         aCoder.encodeInt(Int32(lastKnownProximity.rawValue), forKey: "lastKnownProximity")
         aCoder.encodeBool(isNotificationOnWhenGetsInRange, forKey: "isNotificationOnWhenGetsInRange")
         aCoder.encodeBool(isNotificationOnWhenProximityUnknown, forKey: "isNotificationOnWhenProximityUnknown")
+        aCoder.encodeObject(sharedNodeDescriptor, forKey: "sharedNodeDescriptor")
         aCoder.encodeObject(imageURL, forKey: "imageURL")
         aCoder.encodeObject(lastKnownLocation?.latitude, forKey: "lastKnownLocationLatitude")
         aCoder.encodeObject(lastKnownLocation?.longitude, forKey: "lastKnownLocationLongitude")
@@ -79,9 +80,10 @@ class BeaconItem: NSObject, NSCoding {
     
     required init(coder aDecoder: NSCoder) {
         beaconRegion = aDecoder.decodeObjectForKey("beaconRegion") as! CLBeaconRegion
-        isTracked = aDecoder.decodeBoolForKey("isTracked")
+        //isTracked = aDecoder.decodeBoolForKey("isTracked")
         lastKnownProximity = CLProximity(rawValue: Int(aDecoder.decodeInt32ForKey("lastKnownProximity")))!
         imageURL = aDecoder.decodeObjectForKey("imageURL") as! String?
+        sharedNodeDescriptor = aDecoder.decodeObjectForKey("sharedNodeDescriptor") as! String?
         isNotificationOnWhenProximityUnknown = aDecoder.decodeBoolForKey("isNotificationOnWhenProximityUnknown")
         isNotificationOnWhenGetsInRange = aDecoder.decodeBoolForKey("isNotificationOnWhenGetsInRange")
         if  let latitude = aDecoder.decodeObjectForKey("lastKnownLocationLatitude") as? CLLocationDegrees,
