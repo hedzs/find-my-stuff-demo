@@ -20,7 +20,8 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
         }
         return Singleton.instance
     }
-
+    
+    let maxBeaconCount = 20
     let locationManager = CLLocationManager()
     let notificationManager = NSNotificationCenter.defaultCenter()
     var location : CLLocationCoordinate2D?
@@ -47,12 +48,12 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
         }
         
     
-        // TESZT
+        // TESZT, TBD
         
-        for beacon in beacons {
-            beacon.beaconRegion.notifyEntryStateOnDisplay = true
-        }
-        
+//        for beacon in beacons {
+//            beacon.beaconRegion.notifyEntryStateOnDisplay = true
+//        }
+//        
         // tesztsor
 //        var uuid = NSUUID(UUIDString:"EBEFD083-70A2-47C8-9837-E7B5634DF524")
 //        var tesztBeacon = BeaconItem(uuid:uuid!, major: 1, minor: 1, identifier: "Teszt Beacon")
@@ -63,10 +64,7 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
 //        beacons.append(tesztBeacon2!)
     }
     
-    deinit {
     
-        
-    }
     
     // Külső szolgáltatások
     
@@ -96,6 +94,30 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
         return false
     }
     
+    func addBeacon (beacon: BeaconItem) {
+        if !doesBeaconAlreadyExists(beacon) && beacons.count + sharedBeacons.count < maxBeaconCount {
+            beacons.append(beacon)
+            let notification = NSNotification(name: "BeaconAddNotification", object: beacon)
+            notificationManager.postNotification(notification)
+            self.persistData()
+        } else {
+            let notification = NSNotification(name: "CannotAddBeacon", object: beacon)
+            notificationManager.postNotification(notification)
+        }
+    }
+    
+    func addForeignBeacon (beacon: BeaconItem) {
+        if !doesBeaconAlreadyExists(beacon) && beacons.count + sharedBeacons.count < maxBeaconCount {
+            sharedBeacons.append(beacon)
+            let notification = NSNotification(name: "BeaconAddNotification", object: beacon)
+            notificationManager.postNotification(notification)
+            self.persistData()
+        } else {
+            let notification = NSNotification(name: "CannotAddBeacon", object: beacon)
+            notificationManager.postNotification(notification)
+        }
+    }
+    
     func createBeacon (nsuuid: String, major: Int?, minor: Int?, identifier: String) -> BeaconItem? {
         let uuid = NSUUID(UUIDString:nsuuid)
         if let majorNo = major {
@@ -123,25 +145,7 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
         defaults.setValue(data, forKey: "beacons")
         defaults.setValue(foreignData, forKey: "sharedBeacons")
     }
-    
-    func addForeignBeacon (beacon: BeaconItem) {
-        if !doesBeaconAlreadyExists(beacon) {
-            sharedBeacons.append(beacon)
-            let notification = NSNotification(name: "BeaconAddNotification", object: beacon)
-            notificationManager.postNotification(notification)
-            self.persistData()
-        }
-    }
 
-    
-    func addBeacon (beacon: BeaconItem) {
-        if !doesBeaconAlreadyExists(beacon) {
-            beacons.append(beacon)
-            let notification = NSNotification(name: "BeaconAddNotification", object: beacon)
-            notificationManager.postNotification(notification)
-            self.persistData()
-        }
-    }
     
     func removeBeacon(numberOfBeacon: Int ) {
         if numberOfBeacon >= 0 && numberOfBeacon < beacons.count {
@@ -175,6 +179,20 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
         }
         
     }
+    
+    func toggleRangingForForeignBeacon(numberOfBeacon: Int) {
+        let beacon = sharedBeacons[numberOfBeacon]
+        if beacon.isTracked {
+            locationManager.stopRangingBeaconsInRegion(beacon.beaconRegion)
+            beacon.isTracked = !beacon.isTracked
+            beacon.lastKnownProximity = CLProximity.Unknown
+        } else {
+            locationManager.startRangingBeaconsInRegion(beacon.beaconRegion)
+            beacon.isTracked = !beacon.isTracked
+        }
+        
+    }
+
     
     func shutDownActiveTrackingForAllBeaconRegions() {
         for beacon in beacons {
@@ -225,14 +243,13 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
                     itemFound?.lastKnownProximity = beacon.proximity
                     let notification = NSNotification(name: "LocationUpdateNotification", object: beacon)
                     notificationManager.postNotification(notification)
-                    //println("valtozott a proximity")
                     println(beacon.proximity)
                     if itemFound?.lastKnownProximity != CLProximity.Unknown {
                         itemFound?.lastKnownLocation = self.location
-                        // update location of IBEACON
                     }
                 }
             }
+            
         }
     }
     
@@ -245,12 +262,10 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
     
     func locationManager(manager: CLLocationManager!, didExitRegion region: CLRegion!) {
         scheduleSimpleNotification("\(region.identifier) is out of region!", "outOfRange") // UTIL
-       println("erkezett a didExitRegion")
     }
     
     func locationManager(manager: CLLocationManager!, didEnterRegion region: CLRegion!) {
         scheduleSimpleNotification("\(region.identifier) is in region!", "inRegion") // UTIL
-        println("erkezett a didENterRegion")
     }
     
     // Osztály privát metódusai
@@ -272,26 +287,29 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
     private func doesBeaconAlreadyExists(beacon: BeaconItem) -> Bool {
         var exists = false
         for storedBeacon in beacons {
-            if storedBeacon.beaconRegion == beacon.beaconRegion || storedBeacon.beaconName == beacon.beaconName {
+            if (storedBeacon.beaconRegion == beacon.beaconRegion ) || storedBeacon.beaconName == beacon.beaconName {
                 exists = true
-                let notification = NSNotification(name: "BeaconAlreadyExists", object: beacon)
-                notificationManager.postNotification(notification)
-
             }
+//            if (storedBeacon.beaconRegion.proximityUUID == beacon.beaconRegion.proximityUUID &&
+//                storedBeacon.beaconRegion.major == beacon.beaconRegion.major &&
+//                storedBeacon.beaconRegion.minor == beacon.beaconRegion.minor ) || storedBeacon.beaconName == beacon.beaconName {
+//                exists = true
+//            }
         }
         
         for storedBeacon in sharedBeacons {
-            if storedBeacon.beaconRegion == beacon.beaconRegion || storedBeacon.beaconName == beacon.beaconName {
-                exists = true
+            if (storedBeacon.beaconRegion == beacon.beaconRegion ) || storedBeacon.beaconName == beacon.beaconName {
+                                exists = true
             }
-        }
-        if exists {
-            let notification = NSNotification(name: "BeaconAlreadyExists", object: beacon)
-            notificationManager.postNotification(notification)
+
+//            if (storedBeacon.beaconRegion.proximityUUID == beacon.beaconRegion.proximityUUID &&
+//                storedBeacon.beaconRegion.major == beacon.beaconRegion.major &&
+//                storedBeacon.beaconRegion.minor == beacon.beaconRegion.minor ) || storedBeacon.beaconName == beacon.beaconName {
+//                    exists = true
+//            }
         }
         return exists
     }
-    
 }
 
 // MARK: Kiegészítő szolgáltatások

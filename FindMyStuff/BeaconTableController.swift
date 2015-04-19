@@ -57,8 +57,6 @@ class BeaconTableController: UITableViewController {
                 default: break
             }
             cell.isTracked = beacon.isTracked
-            cell.backgroundColor = UIColor(red: CGFloat(0.08), green: CGFloat(0.584), blue: CGFloat(0.639), alpha: CGFloat(1))
-            
             cell.cellDelegate = self
             cell.beaconBackground.hidden = true
             if let imageURL = beacon.imageURL {
@@ -94,9 +92,7 @@ class BeaconTableController: UITableViewController {
             cell.cellDelegate = self
             cell.beaconBackground.hidden = true
             cell.beaconUploadedIcon.hidden = true
-            cell.backgroundColor = UIColor.orangeColor()
-
-            return cell
+         return cell
         }
     }
     
@@ -143,7 +139,7 @@ class BeaconTableController: UITableViewController {
         if indexPath.section == 0 {
             beaconManager.toggleRanging(indexPath.row)
         } else {
-            // RANGING IN FOREIGN BEACONS
+           beaconManager.toggleRangingForForeignBeacon(indexPath.row)
         }
         self.tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
     }
@@ -265,7 +261,13 @@ extension BeaconTableController: BeaconItemCellDelegate {
     
     func deleteCell(cell: BeaconItemCell) {
         if let indexPath = self.tableView.indexPathForCell(cell) {
-            beaconManager.removeBeacon(indexPath.row)
+        let beacon = beaconManager.beacons[indexPath.row]
+            if beacon.sharedNodeDescriptor == nil {
+                beaconManager.removeBeacon(indexPath.row)
+            } else {
+                self.shootAlertWithMessage("Please unshare before removing beacon")
+            }
+            
         }
         self.tableView.reloadData()
     }
@@ -296,22 +298,24 @@ extension BeaconTableController {
         }
         
         notificationCenter.addObserverForName("SharedNameIsAvailable", object: nil , queue: NSOperationQueue.mainQueue()) { (notification) -> Void in
-            println("Elérhető a kért név")
             if let userInfo = notification.userInfo as? [String:String] {
                 if let destination = userInfo["destination"], beacon = self.editedBeacon {
                     self.persistanceManager.uploadBeacon(beacon, destination: destination)
-                    println("feltöltjük a beacon infot!")
                 }
             }
             self.tableView.reloadData()
         }
 
         notificationCenter.addObserverForName("SharedNameIsNOTAvailable", object: nil, queue: NSOperationQueue.mainQueue()) { (notification) -> Void in
-            println("Nem elérhető a kért név")
+            self.shootAlertWithMessage("The requested share id is not available")
         }
 
         notificationCenter.addObserverForName("SharedBeaconCannotBeFound", object: nil, queue: NSOperationQueue.mainQueue()) { (notification) -> Void in
-            println("Nem található a megosztot beacon")
+            self.shootAlertWithMessage("Shared beacon cannot be found!")
+        }
+        
+        notificationCenter.addObserverForName("CannotAddBeacon", object: nil, queue: NSOperationQueue.mainQueue()) { (notification) -> Void in
+            self.shootAlertWithMessage("Beacon cannot be added because it already exists or you have reached the max beacon limit")
         }
 
         let editMenu = UIMenuItem(title: "Edit", action: "edit:")
@@ -320,6 +324,11 @@ extension BeaconTableController {
         menuController.menuItems = [UIMenuItem]()
         menuController.menuItems?.append(editMenu)
         menuController.update()
+    }
+    
+    func shootAlertWithMessage(message: String) {
+        let alert = UIAlertView(title: "Error", message: message, delegate: nil, cancelButtonTitle: nil, otherButtonTitles: "OK")
+        alert.show()
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -335,7 +344,7 @@ extension BeaconTableController {
         //TESZTSOR:
         //persistanceManager.testBeaconUpload(beacon)
         //persistanceManager.testBeaconDownload()
-        // EDDIG
+        // 
     }
 }
 

@@ -313,7 +313,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="fHy-gC-ftT" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="739" y="371"/>
+            <point key="canvasLocation" x="709" y="371"/>
         </scene>
         <!--Edit Beacon View Controller-->
         <scene sceneID="3xG-qr-Eae">
@@ -585,7 +585,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cKi-7h-McX" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="876" y="1171"/>
+            <point key="canvasLocation" x="2169" y="1111"/>
         </scene>
     </scenes>
     <resources>

@@ -99,12 +99,9 @@ class EditBeaconViewController: UITableViewController, MKMapViewDelegate, UIImag
                 beaconMapView.setRegion(MKCoordinateRegion(center: coordinate, span: MKCoordinateSpan()), animated: true)
             }
             if let imageURL = beacon.imageURL {
-                println("van imageURL")
                 if let image = UIImage(contentsOfFile: imageURL) {
                     let orientedImage = UIImage(CIImage: CIImage(image: image), scale: CGFloat(1), orientation: .Right)
-                    println("megtaláltam a képet")
-                    
-                    beaconImage.image = orientedImage
+                       beaconImage.image = orientedImage
                 }
             } else {
                 beaconImage.backgroundColor = UIColor(red: CGFloat(0.097), green: CGFloat(0.515), blue: CGFloat(0.57), alpha: CGFloat(1))
