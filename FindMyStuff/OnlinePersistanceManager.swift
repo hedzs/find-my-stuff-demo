@@ -10,6 +10,14 @@ import Foundation
 
 class OnlinePersistanceManager {
     
+    class var persistanceManager: OnlinePersistanceManager {
+        struct Singleton {
+            static let instance = OnlinePersistanceManager()
+        }
+        return Singleton.instance
+    }
+
+    
     enum Constants {
         static let rootRef = Firebase(url: "https://find-my-stuff.firebaseio.com")
     }
@@ -51,14 +59,17 @@ class OnlinePersistanceManager {
         childRef.observeSingleEventOfType(.Value, withBlock: { snapshot in
             if snapshot.value as! NSObject != NSNull() {
                 
-            let name = snapshot.value.objectForKey("beaconName") as! String
+            let name = source
+            //let name = snapshot.value.objectForKey("beaconName") as! String
             let uuid = snapshot.value.objectForKey("UUID") as! String
             let major = snapshot.value.objectForKey("Major") as? Int
             let minor = snapshot.value.objectForKey("Minor") as? Int
             let bmr = BeaconManager.beaconManager
             if let beacon = bmr.createBeacon(uuid, major: major, minor: minor, identifier: name) {
+                beacon.sharedNodeDescriptor = source
+                self.startObservingForBeaconsExistence(source)
                 dispatch_async(dispatch_get_main_queue()) {
-                    bmr.addBeacon(beacon)
+                    bmr.addForeignBeacon(beacon)
                 }
             }
             } else {
@@ -67,15 +78,29 @@ class OnlinePersistanceManager {
                     let notification = NSNotification(name: "SharedBeaconCannotBeFound", object: nil)
                     notificationManager.postNotification(notification)
                 }
-
             }
         })
-        
+    }
+    
+    func startObservingForBeaconsExistence(source: String) {
+        let childRef = Constants.rootRef.childByAppendingPath(source)
+        childRef.observeEventType(.ChildRemoved, withBlock: { (snapshot) -> Void in
+            dispatch_async(dispatch_get_main_queue()) {
+                let bmr = BeaconManager.beaconManager
+                bmr.removeForeignBeaconWithDescriptor(source)
+            }
+        })
     }
     
     func startObservingForBeaconInfoUpdates(source: String) {
         
     }
+    
+    func stopObservingForBeacon(source: String) {
+        let childRef = Constants.rootRef.childByAppendingPath(source)
+        childRef.removeAllObservers()
+    }
+
     
     
     // TESZTEK

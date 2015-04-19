@@ -20,6 +20,7 @@ class BeaconItemCell: UITableViewCell {
     var cellDelegate: BeaconItemCellDelegate!
    
     
+    @IBOutlet weak var beaconUploadedIcon: UIButton!
     @IBOutlet weak var beaconBackground: UIView!
     @IBOutlet weak var beaconNameLabel: UILabel!
     @IBOutlet weak var beaconLocationLabel: UILabel!

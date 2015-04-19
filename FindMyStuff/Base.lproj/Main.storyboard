@@ -17,6 +17,7 @@
                         <color key="backgroundColor" red="0.13333333333333333" green="0.32549019607843138" blue="0.47058823529411764" alpha="1" colorSpace="calibratedRGB"/>
                         <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <color key="separatorColor" red="0.1333333333" green="0.32549019610000002" blue="0.47058823529999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="sectionIndexColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
                             <tableViewCell autoresizesSubviews="NO" opaque="NO" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="BeaconCell" rowHeight="140" id="xda-ct-ZHb" customClass="BeaconItemCell" customModule="FindMyStuff" customModuleProvider="target">
                                 <autoresizingMask key="autoresizingMask"/>
@@ -53,18 +54,38 @@
                                                 <constraint firstAttribute="width" constant="90" id="Lga-XZ-gzX"/>
                                             </constraints>
                                         </imageView>
+                                        <button opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pwq-am-If9">
+                                            <rect key="frame" x="8" y="6" width="30" height="32"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="30" id="8BL-fx-L06"/>
+                                                <constraint firstAttribute="height" constant="32" id="8DS-pH-nfb"/>
+                                            </constraints>
+                                            <state key="normal" image="uploaded">
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                        </button>
                                     </subviews>
                                     <constraints>
+                                        <constraint firstItem="ZEI-C5-UyG" firstAttribute="top" secondItem="pwq-am-If9" secondAttribute="bottom" constant="4" id="6vJ-gV-Hy1"/>
                                         <constraint firstItem="ZEI-C5-UyG" firstAttribute="leading" secondItem="ZQH-jd-Kgn" secondAttribute="leadingMargin" id="Bjf-Ze-0m6"/>
-                                        <constraint firstItem="PAb-Jg-QXJ" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="ZEI-C5-UyG" secondAttribute="trailing" constant="8" symbolic="YES" id="DzY-aD-iMq"/>
+                                        <constraint firstItem="PAb-Jg-QXJ" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="ZEI-C5-UyG" secondAttribute="trailing" priority="750" constant="8" symbolic="YES" id="DzY-aD-iMq"/>
+                                        <constraint firstItem="pwq-am-If9" firstAttribute="leading" secondItem="ucv-YA-Y24" secondAttribute="trailing" constant="8" symbolic="YES" id="XeB-CV-rqd"/>
                                         <constraint firstAttribute="centerY" secondItem="PAb-Jg-QXJ" secondAttribute="centerY" id="Ywc-J6-ATH"/>
+                                        <constraint firstItem="pwq-am-If9" firstAttribute="leading" secondItem="ZQH-jd-Kgn" secondAttribute="leadingMargin" id="eQK-Fn-nZ9"/>
                                         <constraint firstAttribute="centerY" secondItem="ZEI-C5-UyG" secondAttribute="bottom" id="eWq-h0-cGf"/>
+                                        <constraint firstItem="pwq-am-If9" firstAttribute="centerY" secondItem="ucv-YA-Y24" secondAttribute="centerY" id="gC8-80-7vo"/>
                                         <constraint firstItem="8VF-lc-eeQ" firstAttribute="centerX" secondItem="PAb-Jg-QXJ" secondAttribute="centerX" id="j5g-qq-pn1"/>
                                         <constraint firstItem="ucv-YA-Y24" firstAttribute="top" secondItem="ZEI-C5-UyG" secondAttribute="bottom" constant="8" symbolic="YES" id="kye-6g-Ynt"/>
                                         <constraint firstItem="ucv-YA-Y24" firstAttribute="leading" secondItem="ZQH-jd-Kgn" secondAttribute="leadingMargin" id="pdD-uI-aze"/>
                                         <constraint firstItem="PAb-Jg-QXJ" firstAttribute="trailing" secondItem="ZQH-jd-Kgn" secondAttribute="trailingMargin" id="qwd-PA-sNW"/>
                                         <constraint firstItem="8VF-lc-eeQ" firstAttribute="centerY" secondItem="PAb-Jg-QXJ" secondAttribute="centerY" id="y1h-Zo-rsu"/>
                                     </constraints>
+                                    <variation key="default">
+                                        <mask key="constraints">
+                                            <exclude reference="XeB-CV-rqd"/>
+                                            <exclude reference="gC8-80-7vo"/>
+                                        </mask>
+                                    </variation>
                                 </tableViewCellContentView>
                                 <color key="backgroundColor" red="0.086274509803921567" green="0.58431372549019611" blue="0.63921568627450975" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
@@ -73,6 +94,7 @@
                                     <outlet property="beaconImage" destination="PAb-Jg-QXJ" id="tDu-I3-Zdx"/>
                                     <outlet property="beaconLocationLabel" destination="ucv-YA-Y24" id="gW5-UC-pL9"/>
                                     <outlet property="beaconNameLabel" destination="ZEI-C5-UyG" id="42d-Tr-2hf"/>
+                                    <outlet property="beaconUploadedIcon" destination="pwq-am-If9" id="Vah-by-cvB"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -570,5 +592,6 @@
         <image name="camera" width="80" height="80"/>
         <image name="cross" width="50" height="50"/>
         <image name="photoLibrary" width="490" height="490"/>
+        <image name="uploaded" width="50" height="50"/>
     </resources>
 </document>

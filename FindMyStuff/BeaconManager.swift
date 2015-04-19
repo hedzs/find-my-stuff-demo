@@ -42,7 +42,9 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
         if let data = defaults.objectForKey("beacons") as? NSData {
             beacons = NSKeyedUnarchiver.unarchiveObjectWithData(data) as! [BeaconItem]
         }
-        println("most lett új beacons")
+        if let foreignData = defaults.objectForKey("sharedBeacons") as? NSData {
+            sharedBeacons = NSKeyedUnarchiver.unarchiveObjectWithData(foreignData) as! [BeaconItem]
+        }
         
     
         // TESZT
@@ -115,8 +117,20 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
     func persistData() {
         let defaults = NSUserDefaults.standardUserDefaults()
         let data = NSKeyedArchiver.archivedDataWithRootObject(beacons)
+        let foreignData = NSKeyedArchiver.archivedDataWithRootObject(sharedBeacons)
         defaults.removeObjectForKey("beacons")
+        defaults.removeObjectForKey("sharedBeacons")
         defaults.setValue(data, forKey: "beacons")
+        defaults.setValue(foreignData, forKey: "sharedBeacons")
+    }
+    
+    func addForeignBeacon (beacon: BeaconItem) {
+        if !doesBeaconAlreadyExists(beacon) {
+            sharedBeacons.append(beacon)
+            let notification = NSNotification(name: "BeaconAddNotification", object: beacon)
+            notificationManager.postNotification(notification)
+            self.persistData()
+        }
     }
 
     
@@ -136,6 +150,19 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
         self.persistData()
     }
     
+    func removeForeignBeaconWithDescriptor(descriptor: String) {
+        var counter = 0
+        for beacon in sharedBeacons {
+            if beacon.sharedNodeDescriptor! == descriptor {
+                sharedBeacons.removeAtIndex(counter)
+                let notification = NSNotification(name: "BeaconAddNotification", object: nil)
+                notificationManager.postNotification(notification)
+            }
+            counter++
+        }
+        self.persistData()
+    }
+    
     func toggleRanging(numberOfBeacon: Int) {
         let beacon = beacons[numberOfBeacon]
         if beacon.isTracked {
@@ -151,6 +178,9 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
     
     func shutDownActiveTrackingForAllBeaconRegions() {
         for beacon in beacons {
+            locationManager.stopRangingBeaconsInRegion(beacon.beaconRegion)
+        }
+        for beacon in sharedBeacons {
             locationManager.stopRangingBeaconsInRegion(beacon.beaconRegion)
         }
     }
@@ -242,9 +272,22 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
     private func doesBeaconAlreadyExists(beacon: BeaconItem) -> Bool {
         var exists = false
         for storedBeacon in beacons {
-            if storedBeacon.beaconRegion == beacon.beaconRegion {
+            if storedBeacon.beaconRegion == beacon.beaconRegion || storedBeacon.beaconName == beacon.beaconName {
+                exists = true
+                let notification = NSNotification(name: "BeaconAlreadyExists", object: beacon)
+                notificationManager.postNotification(notification)
+
+            }
+        }
+        
+        for storedBeacon in sharedBeacons {
+            if storedBeacon.beaconRegion == beacon.beaconRegion || storedBeacon.beaconName == beacon.beaconName {
                 exists = true
             }
+        }
+        if exists {
+            let notification = NSNotification(name: "BeaconAlreadyExists", object: beacon)
+            notificationManager.postNotification(notification)
         }
         return exists
     }

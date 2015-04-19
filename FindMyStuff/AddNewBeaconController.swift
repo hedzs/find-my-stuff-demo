@@ -12,6 +12,7 @@ class AddNewBeaconController: UIViewController {
     
     let beaconManager = BeaconManager.beaconManager
     lazy var imagePicker = UIImagePickerController()
+    let persistanceManager = OnlinePersistanceManager()
     
     
     
@@ -63,7 +64,10 @@ class AddNewBeaconController: UIViewController {
         if !sharedIDText.text.isEmpty {
             // SHAREDID alapján add beacon
             if isTheUserInputIsValidForTextField(sharedIDText) {
-//                beaconManager.addSharedBeacon(sharedIDText.text)
+                if let text = sharedIDText.text {
+                    persistanceManager.downloadBeacon(text)
+                    self.navigationController?.popToRootViewControllerAnimated(true)
+                }
             }
         } else if UITextField.countFilledUITextFieldInGroup(newBeaconGroup) > 0 {
             if  isTheUserInputIsValidForTextField(newBeaconName) &&

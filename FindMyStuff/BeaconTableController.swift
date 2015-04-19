@@ -10,6 +10,7 @@ import UIKit
 
 class BeaconTableController: UITableViewController {
     
+    // MARK: Properties
     let beaconManager = BeaconManager.beaconManager
     let notificationCenter = NSNotificationCenter.defaultCenter()
     let persistanceManager = OnlinePersistanceManager()
@@ -18,44 +19,85 @@ class BeaconTableController: UITableViewController {
     
     // MARK: Table Delegate functions
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 1
+        if beaconManager.sharedBeacons.count == 0 {
+            return 1
+        }
+        return 2
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return beaconManager.beacons.count
-        
+        if section == 0 {
+            return beaconManager.beacons.count
+        } else if section == 1 {
+            return beaconManager.sharedBeacons.count
+        } else {
+            return 0
+        }
+    }
+    
+    override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        switch section {
+            case 1: return "Foreign beacons"
+            default: return nil
+        }
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("BeaconCell", forIndexPath: indexPath) as! BeaconItemCell
-        let beacon = beaconManager.beacons[indexPath.row]
-        cell.beaconNameLabel.text = "  \(beacon.beaconName)  "
-        cell.beaconLocationLabel.text  = beacon.lastKnownProximity.description
-        switch beacon.lastKnownProximity {
-            case .Far: cell.beaconLocationLabel.textColor = UIColor.redColor()
-            case .Immediate: cell.beaconLocationLabel.textColor = UIColor.greenColor()
-            case .Near: cell.beaconLocationLabel.textColor = UIColor.yellowColor()
-            case .Unknown: cell.beaconLocationLabel.textColor = UIColor.grayColor()
-            default: break
-        }
-        cell.isTracked = beacon.isTracked
-        cell.cellDelegate = self
-        cell.beaconBackground.hidden = true
-        if let imageURL = beacon.imageURL {
-            if let image = UIImage(contentsOfFile: imageURL) {
-                println("valtas a kepben")
-                cell.changeImage(image)
-                cell.beaconBackground.hidden = false
+        if indexPath.section == 0 {
+            // OWNED BEACONS
+            let cell = tableView.dequeueReusableCellWithIdentifier("BeaconCell", forIndexPath: indexPath) as! BeaconItemCell
+            let beacon = beaconManager.beacons[indexPath.row]
+            cell.beaconNameLabel.text = "  \(beacon.beaconName)  "
+            cell.beaconLocationLabel.text  = beacon.lastKnownProximity.description
+            switch beacon.lastKnownProximity {
+                case .Far: cell.beaconLocationLabel.textColor = UIColor.redColor()
+                case .Immediate: cell.beaconLocationLabel.textColor = UIColor.greenColor()
+                case .Near: cell.beaconLocationLabel.textColor = UIColor.yellowColor()
+                case .Unknown: cell.beaconLocationLabel.textColor = UIColor.grayColor()
+                default: break
             }
+            cell.isTracked = beacon.isTracked
+            cell.backgroundColor = UIColor(red: CGFloat(0.08), green: CGFloat(0.584), blue: CGFloat(0.639), alpha: CGFloat(1))
+            
+            cell.cellDelegate = self
+            cell.beaconBackground.hidden = true
+            if let imageURL = beacon.imageURL {
+                if let image = UIImage(contentsOfFile: imageURL) {
+                    cell.changeImage(image)
+                    cell.beaconBackground.hidden = false
+                }
+            } else {
+                cell.beaconImage.image = nil
+            }
+            
+            if let uploaded = beacon.sharedNodeDescriptor {
+                cell.beaconUploadedIcon.hidden = false
+            } else {
+                cell.beaconUploadedIcon.hidden = true
+            }
+            return cell
         } else {
+            // FOREIGN BEACONS
+            let cell = tableView.dequeueReusableCellWithIdentifier("BeaconCell", forIndexPath: indexPath) as! BeaconItemCell
+            let beacon = beaconManager.sharedBeacons[indexPath.row]
+            cell.beaconNameLabel.text = "  \(beacon.beaconName)  "
+            cell.beaconLocationLabel.text  = beacon.lastKnownProximity.description
+            switch beacon.lastKnownProximity {
+                case .Far: cell.beaconLocationLabel.textColor = UIColor.redColor()
+                case .Immediate: cell.beaconLocationLabel.textColor = UIColor.greenColor()
+                case .Near: cell.beaconLocationLabel.textColor = UIColor.yellowColor()
+                case .Unknown: cell.beaconLocationLabel.textColor = UIColor.grayColor()
+                default: break
+            }
+            cell.isTracked = beacon.isTracked
             cell.beaconImage.image = nil
+            cell.cellDelegate = self
+            cell.beaconBackground.hidden = true
+            cell.beaconUploadedIcon.hidden = true
+            cell.backgroundColor = UIColor.orangeColor()
+
+            return cell
         }
-        
-        //TESZTSOR:
-            //persistanceManager.testBeaconUpload(beacon)
-            //persistanceManager.testBeaconDownload()
-        // EDDIG
-        return cell
     }
     
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
@@ -63,7 +105,6 @@ class BeaconTableController: UITableViewController {
     }
     
     override func tableView(tableView: UITableView, canPerformAction action: Selector, forRowAtIndexPath indexPath: NSIndexPath, withSender sender: AnyObject) -> Bool {
-        //return ( action == Selector("delete:") || action == Selector("edit:"))
         return true
     }
     
@@ -72,26 +113,38 @@ class BeaconTableController: UITableViewController {
     }
     
     override func tableView(tableView: UITableView, shouldShowMenuForRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        
-        return true
+        if indexPath.section == 0 {
+            return true
+        } else {
+            return false
+        }
     }
     
     override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [AnyObject]? {
-        let beacon = beaconManager.beacons[indexPath.row]
-        var returnedMenuItem:[AnyObject]?
-        
-        if let sharedNode = beacon.sharedNodeDescriptor {
-            returnedMenuItem = self.createHiddenMenuItem(.Unshare, forBeaconItem: beacon)
+        if indexPath.section == 0 {
+            let beacon = beaconManager.beacons[indexPath.row]
+            var returnedMenuItem:[AnyObject]?
+            
+            if let sharedNode = beacon.sharedNodeDescriptor {
+                returnedMenuItem = self.createHiddenMenuItem(.Unshare, forBeaconItem: beacon)
+            } else {
+                returnedMenuItem =  self.createHiddenMenuItem(.Share, forBeaconItem: beacon)
+                self.editedBeacon = beacon
+            }
+            return returnedMenuItem
         } else {
-            returnedMenuItem =  self.createHiddenMenuItem(.Share, forBeaconItem: beacon)
-            self.editedBeacon = beacon
+            let beacon = beaconManager.sharedBeacons [indexPath.row]
+            var returnedMenuItem = self.createHiddenMenuItem(.Delete, forBeaconItem: beacon)
+            return returnedMenuItem
         }
-        
-        return returnedMenuItem
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        beaconManager.toggleRanging(indexPath.row)
+        if indexPath.section == 0 {
+            beaconManager.toggleRanging(indexPath.row)
+        } else {
+            // RANGING IN FOREIGN BEACONS
+        }
         self.tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
     }
     
@@ -99,7 +152,7 @@ class BeaconTableController: UITableViewController {
         if section == 0 {
             return CGFloat(0.01)
         } else {
-            return CGFloat(15)
+            return CGFloat(20)
         }
     }
     
@@ -114,10 +167,12 @@ class BeaconTableController: UITableViewController {
     }
 }
 
+// MARK: Menu item creator
 extension BeaconTableController {
     enum menuItemType {
         case Share
         case Unshare
+        case Delete
     }
     
     func createHiddenMenuItem(type: menuItemType, forBeaconItem: BeaconItem) -> [AnyObject]? {
@@ -152,11 +207,12 @@ extension BeaconTableController {
         case .Unshare:
             var shareAction = UITableViewRowAction(style: UITableViewRowActionStyle.Normal, title: "Unshare", handler: { (action: UITableViewRowAction!, indexPath: NSIndexPath!) -> Void in
                 
-                let sharePopUp = UIAlertController(title: "Unshare beacon UUID", message: "You can remove your shared beacon information by pressing Ok", preferredStyle: .Alert )
+                let sharePopUp = UIAlertController(title: "Unshare beacon UUID", message: "You can remove your shared beacon information by pressing Unshare \nShared id: \(forBeaconItem.sharedNodeDescriptor!)", preferredStyle: .Alert )
                 
                 let shareAction = UIAlertAction(title: "Unshare", style: UIAlertActionStyle.Default, handler: { (alert) -> Void in
                     self.persistanceManager.removeNode(forBeaconItem.sharedNodeDescriptor!)
                     forBeaconItem.sharedNodeDescriptor = nil
+                    self.tableView.reloadData()
                 })
                 let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil)
                 
@@ -166,6 +222,26 @@ extension BeaconTableController {
                 }
             )
             return [shareAction]
+            
+        case .Delete:
+            var shareAction = UITableViewRowAction(style: UITableViewRowActionStyle.Normal, title: "Delete", handler: { (action: UITableViewRowAction!, indexPath: NSIndexPath!) -> Void in
+                
+                let sharePopUp = UIAlertController(title: "Delete foreign beacon", message: "You can remove your foreign beacon information by pressing Delete", preferredStyle: .Alert )
+                
+                let shareAction = UIAlertAction(title: "Delete", style: UIAlertActionStyle.Destructive, handler: { (alert) -> Void in
+                    self.persistanceManager.stopObservingForBeacon(forBeaconItem.sharedNodeDescriptor!)
+                    self.beaconManager.removeForeignBeaconWithDescriptor(forBeaconItem.sharedNodeDescriptor!)
+                    self.tableView.reloadData()
+                })
+                let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil)
+                
+                sharePopUp.addAction(shareAction)
+                sharePopUp.addAction(cancelAction)
+                self.presentViewController(sharePopUp, animated: true, completion: nil)
+                }
+            )
+            return [shareAction]
+            
         default:
             return nil
         }
@@ -176,10 +252,13 @@ extension BeaconTableController {
 
 // MARK: - Delegate Functions
 extension BeaconTableController: BeaconItemCellDelegate {
+    
+    // unused atm, TBD
     func locationUpdate(cell: BeaconItemCell) -> String {
         return ""
     }
     
+    // unused atm, TBD
     func nameUpdate(cell: BeaconItemCell) -> String {
        return ""
     }
@@ -216,8 +295,6 @@ extension BeaconTableController {
             println("Jött egy notification az updatere!")
         }
         
-        
-        
         notificationCenter.addObserverForName("SharedNameIsAvailable", object: nil , queue: NSOperationQueue.mainQueue()) { (notification) -> Void in
             println("Elérhető a kért név")
             if let userInfo = notification.userInfo as? [String:String] {
@@ -226,6 +303,7 @@ extension BeaconTableController {
                     println("feltöltjük a beacon infot!")
                 }
             }
+            self.tableView.reloadData()
         }
 
         notificationCenter.addObserverForName("SharedNameIsNOTAvailable", object: nil, queue: NSOperationQueue.mainQueue()) { (notification) -> Void in
@@ -258,7 +336,6 @@ extension BeaconTableController {
         //persistanceManager.testBeaconUpload(beacon)
         //persistanceManager.testBeaconDownload()
         // EDDIG
-
     }
 }
 
