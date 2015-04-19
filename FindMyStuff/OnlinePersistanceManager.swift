@@ -71,10 +71,6 @@ class OnlinePersistanceManager {
                     if let minor = snapshot.value.objectForKey("Minor") as? String {
                         minorNo = minor.toInt()
                     }
-                println(name)
-                println(uuid)
-                println(majorNo)
-                println(minorNo)
                 let bmr = BeaconManager.beaconManager
                 if let beacon = bmr.createBeacon(uuid, major: majorNo, minor: minorNo, identifier: name) {
                     beacon.sharedNodeDescriptor = source
@@ -93,9 +89,20 @@ class OnlinePersistanceManager {
         })
     }
     
-    func restartAllObservations() {
+    func startupCheckForForeignBeacons() {
         let bmr = BeaconManager.beaconManager
-        
+        // initial check, ha a futási időn kívül valamelyik node megszűnt
+        let nodes = bmr.getForeignBeaconSharedNodeDescriptors()
+        for node in nodes {
+            let childRef = Constants.rootRef.childByAppendingPath(node)
+            childRef.observeSingleEventOfType(.Value, withBlock: { snapshot in
+                if snapshot.value as! NSObject == NSNull() {
+                    dispatch_async(dispatch_get_main_queue()) {
+                        bmr.removeForeignBeaconWithDescriptor(node)
+                    }
+                }
+            })
+        }
     }
     
     func startObservingForBeaconsExistence(source: String) {
@@ -109,13 +116,14 @@ class OnlinePersistanceManager {
     }
     
     func startObservingForBeaconInfoUpdates(source: String) {
-        
+        // osztott beaconök lokációra vonatkozó adataihoz
     }
     
     func stopObservingForBeacon(source: String) {
         let childRef = Constants.rootRef.childByAppendingPath(source)
         childRef.removeAllObservers()
     }
+
     
     
     // TESZTEK, TBD

@@ -287,14 +287,12 @@ extension BeaconTableController {
         
         notificationCenter.addObserverForName("LocationUpdateNotification", object: nil, queue: NSOperationQueue.mainQueue()) { (notification) -> Void in
             self.tableView.reloadData()
-            println("Jött egy notification az updatere!")
         }
         
         notificationCenter.addObserverForName("BeaconAddNotification", object: nil, queue: NSOperationQueue.mainQueue()) { (notification) -> Void in
             self.tableView.reloadData()
             self.tableView.setNeedsDisplay()
             //self.tableView.reloadRowsAtIndexPaths([NSIndexPath(forRow: 0, inSection: 0)], withRowAnimation: UITableViewRowAnimation.Automatic)
-            println("Jött egy notification az updatere!")
         }
         
         notificationCenter.addObserverForName("SharedNameIsAvailable", object: nil , queue: NSOperationQueue.mainQueue()) { (notification) -> Void in
@@ -341,10 +339,6 @@ extension BeaconTableController {
         self.title = "Find my stuff"
         self.tableView.reloadData()
         self.tableView.setNeedsDisplay()
-        //TESZTSOR:
-        //persistanceManager.testBeaconUpload(beacon)
-        //persistanceManager.testBeaconDownload()
-        // 
     }
 }
 

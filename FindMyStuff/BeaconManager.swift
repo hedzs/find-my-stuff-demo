@@ -13,7 +13,7 @@ import CoreLocation
 class BeaconManager: NSObject, CLLocationManagerDelegate {
     
     
-    // Properties
+    // MARK: Properties
     class var beaconManager: BeaconManager {
         struct Singleton {
             static let instance = BeaconManager()
@@ -29,7 +29,7 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
     var sharedBeacons = [BeaconItem]()
     
     
-    // Inicializálás
+    // MARK: Inicializálás
     override init() {
         super.init()
         setupNotification() // UTIL
@@ -37,8 +37,6 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
         locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
         locationManager.requestAlwaysAuthorization()
         locationManager.startUpdatingLocation()
-        
-        
         let defaults = NSUserDefaults.standardUserDefaults()
         if let data = defaults.objectForKey("beacons") as? NSData {
             beacons = NSKeyedUnarchiver.unarchiveObjectWithData(data) as! [BeaconItem]
@@ -46,27 +44,28 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
         if let foreignData = defaults.objectForKey("sharedBeacons") as? NSData {
             sharedBeacons = NSKeyedUnarchiver.unarchiveObjectWithData(foreignData) as! [BeaconItem]
         }
-        
+        for beacon in beacons {
+            println(beacon.imageURL)
+        }
+    }
     
-        // TESZT, TBD
-        
-//        for beacon in beacons {
-//            beacon.beaconRegion.notifyEntryStateOnDisplay = true
-//        }
-//        
-        // tesztsor
-//        var uuid = NSUUID(UUIDString:"EBEFD083-70A2-47C8-9837-E7B5634DF524")
-//        var tesztBeacon = BeaconItem(uuid:uuid!, major: 1, minor: 1, identifier: "Teszt Beacon")
-//        beacons.append(tesztBeacon!)
-//        var uuid2 = NSUUID(UUIDString:"EBEFD083-71A2-47C8-9837-E7B5634DF524")
-//        println(uuid2)
-//        var tesztBeacon2 = BeaconItem(uuid:uuid2!, major: 1, minor: 1, identifier: "Teszt Beacon Második")
-//        beacons.append(tesztBeacon2!)
+    deinit {
+        locationManager.stopUpdatingLocation()
+        persistData()
     }
     
     
     
-    // Külső szolgáltatások
+    // MARK: Külső szolgáltatások
+    
+    func getForeignBeaconSharedNodeDescriptors() -> [String] {
+        var nodes = [String]()
+        for beacon in sharedBeacons {
+            nodes.append(beacon.sharedNodeDescriptor!)
+        }
+        return nodes
+    }
+    
     
     func isValidUUID(uuid: String) -> Bool {
         let NSuuid: NSString = uuid.uppercaseString
@@ -227,7 +226,7 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
     }
     
     
-    // CLLocationManager
+    // MARK: CLLocationManager delegált
     
     func locationManager(manager: CLLocationManager!, didRangeBeacons beacons: [AnyObject]!, inRegion region: CLBeaconRegion!) {
         let itemFound = matchBeaconRegion(region)
@@ -238,8 +237,7 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
                 itemFound?.beaconRegion.minor == beacon.minor
 
             {
-                //println(beacon)
-                if itemFound?.lastKnownProximity != beacon.proximity { // itt lehet nem kell dupla ellenőrzés mert egy beacon lesz a beaconsben, ha megvan adva a region uuid major minor is
+                if itemFound?.lastKnownProximity != beacon.proximity {
                     itemFound?.lastKnownProximity = beacon.proximity
                     let notification = NSNotification(name: "LocationUpdateNotification", object: beacon)
                     notificationManager.postNotification(notification)
@@ -249,7 +247,6 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
                     }
                 }
             }
-            
         }
     }
     
@@ -268,7 +265,7 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
         scheduleSimpleNotification("\(region.identifier) is in region!", "inRegion") // UTIL
     }
     
-    // Osztály privát metódusai
+    // MARK: Osztály privát metódusai
     
     private func matchBeaconRegion(region: CLBeaconRegion) -> BeaconItem? {
         for beacon in beacons {
@@ -290,11 +287,6 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
             if (storedBeacon.beaconRegion == beacon.beaconRegion ) || storedBeacon.beaconName == beacon.beaconName {
                 exists = true
             }
-//            if (storedBeacon.beaconRegion.proximityUUID == beacon.beaconRegion.proximityUUID &&
-//                storedBeacon.beaconRegion.major == beacon.beaconRegion.major &&
-//                storedBeacon.beaconRegion.minor == beacon.beaconRegion.minor ) || storedBeacon.beaconName == beacon.beaconName {
-//                exists = true
-//            }
         }
         
         for storedBeacon in sharedBeacons {
@@ -302,11 +294,6 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
                                 exists = true
             }
 
-//            if (storedBeacon.beaconRegion.proximityUUID == beacon.beaconRegion.proximityUUID &&
-//                storedBeacon.beaconRegion.major == beacon.beaconRegion.major &&
-//                storedBeacon.beaconRegion.minor == beacon.beaconRegion.minor ) || storedBeacon.beaconName == beacon.beaconName {
-//                    exists = true
-//            }
         }
         return exists
     }

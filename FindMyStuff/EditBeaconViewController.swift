@@ -65,13 +65,12 @@ class EditBeaconViewController: UITableViewController, MKMapViewDelegate, UIImag
     
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]) {
         imagePicker.dismissViewControllerAnimated(true, completion: nil)
-        println("teszt")
         beaconImage.image = info[UIImagePickerControllerOriginalImage] as? UIImage
-        println("Documents/\(beacon!.beaconName).jpeg")
-        let saveURL = NSHomeDirectory().stringByAppendingPathComponent("Documents/\(beacon!.beaconName).jpeg")
+        let filename = beacon!.beaconName.stringByReplacingOccurrencesOfString(" ", withString: "")
+        let saveURL = NSHomeDirectory().stringByAppendingPathComponent("Documents/\(filename).jpeg")
         beacon?.imageURL = saveURL
         if UIImageJPEGRepresentation(beaconImage.image, CGFloat(0.85)).writeToFile(saveURL, atomically: true) {
-            println("UIImage elmentve")
+            //println("UIImage elmentve")
         }
     }
     
@@ -81,8 +80,7 @@ class EditBeaconViewController: UITableViewController, MKMapViewDelegate, UIImag
             beaconManager.toggleNotifyOnEntry(beacon, toState: beaconInRangeSwitch.on)
             beaconManager.toggleNotifyOnExit(beacon, toState: beaconUnknownSwitch.on)
         }
-//        beacon?.isNotificationOnWhenGetsInRange = beaconInRangeSwitch.on
-//        beacon?.isNotificationOnWhenProximityUnknown = beaconUnknownSwitch.on
+        beaconManager.persistData()
         self.navigationController?.popToRootViewControllerAnimated(true)
     }
     
@@ -95,7 +93,6 @@ class EditBeaconViewController: UITableViewController, MKMapViewDelegate, UIImag
                 let mapPoint = MKPointAnnotation()
                 mapPoint.coordinate = coordinate
                 beaconMapView.addAnnotation(mapPoint)
-                //beaconMapView.centerCoordinate = coordinate
                 beaconMapView.setRegion(MKCoordinateRegion(center: coordinate, span: MKCoordinateSpan()), animated: true)
             }
             if let imageURL = beacon.imageURL {

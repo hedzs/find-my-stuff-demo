@@ -17,6 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let isDeviceCapableOfMonitoring = CLLocationManager.isRangingAvailable()
     let isAppAuthorizedToLocate = CLLocationManager.authorizationStatus()
     let beaconManager = BeaconManager.beaconManager
+    let persistanceManager = OnlinePersistanceManager()
     
     
     func application(application: UIApplication, willFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]?) -> Bool {
@@ -33,13 +34,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let appearance = UINavigationBar.appearance()
         appearance.barTintColor = UIColor(red: CGFloat(0.1328), green: CGFloat(0.3242), blue: CGFloat(0.46875), alpha: CGFloat(1.0))
         appearance.tintColor = UIColor.whiteColor()
-        //appearance.titleTextAttributes?.updateValue(UIColor.whiteColor(), forKey: NSForegroundColorAttributeName)
-        //appearance.titleTextAttributes?.updateValue(UIFont(name: "AvenirNext-Bold", size: CGFloat(28))!, forKey: NSFontAttributeName)
-        
         appearance.barStyle = UIBarStyle.Black
-
+        persistanceManager.startupCheckForForeignBeacons()
         
-        // Override point for customization after application launch.
         return true
     }
 
@@ -71,7 +68,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         CLLocationManager().stopUpdatingLocation()
         //NSNotificationCenter.removeObserver(self)
-        println("app will terminate")
     }
 
 

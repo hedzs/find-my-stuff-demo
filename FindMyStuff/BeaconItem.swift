@@ -16,15 +16,12 @@ class BeaconItem: NSObject, NSCoding {
             beaconRegion.notifyEntryStateOnDisplay = true
         }
     }
-    
     var beaconName:String {
         get {
             return beaconRegion.identifier
         }
     }
-    
     var isTracked = false
-    
     var isNotificationOnWhenGetsInRange = false {
         didSet {
             if isNotificationOnWhenGetsInRange == true {
@@ -43,7 +40,6 @@ class BeaconItem: NSObject, NSCoding {
             }
         }
     }
-    
     var sharedNodeDescriptor: String?
     var imageURL: String?
     var lastKnownProximity = CLProximity.Unknown
@@ -68,7 +64,6 @@ class BeaconItem: NSObject, NSCoding {
     
     func encodeWithCoder(aCoder: NSCoder) {
         aCoder.encodeObject(beaconRegion, forKey: "beaconRegion")
-        //aCoder.encodeBool(isTracked, forKey: "isTracked")
         aCoder.encodeInt(Int32(lastKnownProximity.rawValue), forKey: "lastKnownProximity")
         aCoder.encodeBool(isNotificationOnWhenGetsInRange, forKey: "isNotificationOnWhenGetsInRange")
         aCoder.encodeBool(isNotificationOnWhenProximityUnknown, forKey: "isNotificationOnWhenProximityUnknown")
@@ -80,7 +75,6 @@ class BeaconItem: NSObject, NSCoding {
     
     required init(coder aDecoder: NSCoder) {
         beaconRegion = aDecoder.decodeObjectForKey("beaconRegion") as! CLBeaconRegion
-        //isTracked = aDecoder.decodeBoolForKey("isTracked")
         lastKnownProximity = CLProximity(rawValue: Int(aDecoder.decodeInt32ForKey("lastKnownProximity")))!
         imageURL = aDecoder.decodeObjectForKey("imageURL") as! String?
         sharedNodeDescriptor = aDecoder.decodeObjectForKey("sharedNodeDescriptor") as! String?
