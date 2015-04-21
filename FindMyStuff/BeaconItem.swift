@@ -26,7 +26,7 @@ class BeaconItem: NSObject, NSCoding {
         didSet {
             if isNotificationOnWhenGetsInRange == true {
                 beaconRegion.notifyOnEntry = true
-                } else {
+            } else {
                 beaconRegion.notifyOnEntry = false
             }
         }
@@ -40,6 +40,7 @@ class BeaconItem: NSObject, NSCoding {
             }
         }
     }
+
     var sharedNodeDescriptor: String?
     var imageURL: String?
     var lastKnownProximity = CLProximity.Unknown

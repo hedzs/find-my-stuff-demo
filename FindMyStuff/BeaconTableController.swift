@@ -16,6 +16,9 @@ class BeaconTableController: UITableViewController {
     let persistanceManager = OnlinePersistanceManager()
     var editedBeacon: BeaconItem?
     
+    deinit {
+        notificationCenter.removeObserver(self)
+    }
     
     // MARK: Table Delegate functions
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {

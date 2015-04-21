@@ -53,30 +53,21 @@ class OnlinePersistanceManager {
     func uploadBeacon(beacon: BeaconItem, destination: String) {
         let childRef = Constants.rootRef.childByAppendingPath(destination)
         beacon.sharedNodeDescriptor = destination
-        childRef.setValue(Packager.wrapBeaconItemIntoJSON(beacon))
+        var dataToBeUploaded = Packager.wrapBeaconItemIntoJSON(beacon)
+        Packager.anonymizeLocationalData(&dataToBeUploaded)
+        childRef.setValue(dataToBeUploaded)
     }
     
     func downloadBeacon(source: String) {
         let childRef = Constants.rootRef.childByAppendingPath(source)
         childRef.observeSingleEventOfType(.Value, withBlock: { snapshot in
             if snapshot.value as! NSObject != NSNull() {
-                let name = source
-                //let name = snapshot.value.objectForKey("beaconName") as! String
-                let uuid = snapshot.value.objectForKey("UUID") as! String
-                var majorNo: Int? = nil
-                var minorNo: Int? = nil
-                if let major = snapshot.value.objectForKey("Major") as? String {
-                    majorNo = major.toInt()
-                }
-                    if let minor = snapshot.value.objectForKey("Minor") as? String {
-                        minorNo = minor.toInt()
-                    }
                 let bmr = BeaconManager.beaconManager
-                if let beacon = bmr.createBeacon(uuid, major: majorNo, minor: minorNo, identifier: name) {
+                if let beacon = Packager.extractJSONIntoBeaconItem(snapshot.value as! NSMutableDictionary) {
                     beacon.sharedNodeDescriptor = source
                     self.startObservingForBeaconsExistence(source)
                     dispatch_async(dispatch_get_main_queue()) {
-                            bmr.addForeignBeacon(beacon)
+                        bmr.addForeignBeacon(beacon)
                     }
                 }
             } else {
@@ -117,6 +108,12 @@ class OnlinePersistanceManager {
     
     func startObservingForBeaconInfoUpdates(source: String) {
         // osztott beaconök lokációra vonatkozó adataihoz
+        let childRef = Constants.rootRef.childByAppendingPath(source)
+        childRef.observeEventType(.ChildChanged, withBlock: { (snapshot) -> Void in
+            
+            
+        })
+
     }
     
     func stopObservingForBeacon(source: String) {

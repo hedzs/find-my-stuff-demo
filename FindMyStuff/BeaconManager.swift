@@ -66,6 +66,14 @@ class BeaconManager: NSObject, CLLocationManagerDelegate {
         return nodes
     }
     
+    func getBeaconsSharedNodeDescriptors() -> [String] {
+        var nodes = [String]()
+        for beacon in beacons {
+            nodes.append(beacon.sharedNodeDescriptor!)
+        }
+        return nodes
+    }
+    
     
     func isValidUUID(uuid: String) -> Bool {
         let NSuuid: NSString = uuid.uppercaseString
